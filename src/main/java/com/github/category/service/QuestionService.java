@@ -20,6 +20,7 @@ public class QuestionService {
 
     private final QuestionRepository questionRepository;
 
+
     public QuestionEntity createQuestion(String content, String userTimeZone) {
         // 사용자의 시간대에 맞는 ZonedDateTime 생성
         ZonedDateTime userZonedDateTime = ZonedDateTime.now(ZoneId.of(userTimeZone));
@@ -32,6 +33,14 @@ public class QuestionService {
         // 질문 저장
         return questionRepository.save(questionEntity);
     }
+
+    public QuestionDTO createQuestion(QuestionBody questionBody) {
+        QuestionEntity questionEntity = QuestionMapper.INSTANCE.idAndQuestionBodyToQuestionEntity(null,questionBody);
+        QuestionEntity questionCreated = questionRepository.save(questionEntity);
+        QuestionDTO questionDTO = QuestionMapper.INSTANCE.questionEntityToQuestionDTO(questionCreated);
+        return questionDTO;
+    }
+
 
     //전체 질문 조회
     public List<QuestionDTO> getAllQuestions() {
@@ -49,11 +58,6 @@ public class QuestionService {
         return questionDTO;
     }
 
-    public QuestionDTO createQuestion(QuestionBody questionBody) {
-        QuestionEntity questionEntity = QuestionMapper.INSTANCE.idAndQuestionBodyToQuestionEntity(null,questionBody);
-        QuestionEntity questionCreated = questionRepository.save(questionEntity);
-        QuestionDTO questionDTO = QuestionMapper.INSTANCE.questionEntityToQuestionDTO(questionCreated);
-        return questionDTO;
-    }
+
 
 }

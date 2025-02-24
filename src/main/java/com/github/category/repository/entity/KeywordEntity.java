@@ -20,15 +20,17 @@ import java.time.ZonedDateTime;
 public class KeywordEntity {
 
     @Id
-    @ManyToOne
-    @JoinColumn(name = "category_id", nullable = false)
-    private CategoryEntity category;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "keyword_id")
+    private int keywordId;
 
-    @Id
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", nullable = false)  // category_id 컬럼 외래 키 설정
+    private CategoryEntity categoryEntity;
+
     @Column(name = "keyword", nullable = false)
     private String keyword;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    @CreationTimestamp
-    private ZonedDateTime createdAt;
+    private ZonedDateTime createdAt = ZonedDateTime.now();
 }

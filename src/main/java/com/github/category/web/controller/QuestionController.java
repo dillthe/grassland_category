@@ -16,6 +16,12 @@ public class QuestionController {
 
     private final QuestionService questionService;
 
+    @Operation(summary = "Create a question")
+    @PostMapping
+    public String createQuestion(@RequestBody QuestionBody questionBody) {
+        QuestionDTO createdQuestion = questionService.createQuestion(questionBody);
+        return "Question created: " + createdQuestion;
+    }
     @Operation(summary = "Get all questions")
     @GetMapping
     public List<QuestionDTO> getAllQuestions() {
@@ -29,18 +35,10 @@ public class QuestionController {
         return questionDTO;
     }
 
-    @Operation(summary = "Create a question")
-    @PostMapping
-    public String createQuestion(@RequestBody QuestionBody questionBody) {
-        QuestionDTO createdQuestion = questionService.createQuestion(questionBody);
-        return "Question created: " + createdQuestion;
-    }
-
-
-    @Operation(summary = "Delete a question")
-    @DeleteMapping("/{questionId}")
-    public String deleteQuestion(@PathVariable int questionId) {
-        String deletion = questionService.deleteQuestion(questionId);
-        return deletion;
-    }
+//    @Operation(summary = "Delete a question")
+//    @DeleteMapping("/{questionId}")
+//    public String deleteQuestion(@PathVariable int questionId) {
+//        String deletion = questionService.deleteQuestion(questionId);
+//        return deletion;
+//    }
 }

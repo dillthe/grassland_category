@@ -13,6 +13,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class CategoryDTO {
-    private Long categoryId;
+    private int categoryId;
     private String name;
 }

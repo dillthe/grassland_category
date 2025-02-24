@@ -72,19 +72,19 @@ public class CategoryService {
 
 
     //먼저 키워드를 통해 분류할 수 있게 하고, AI를 통해 2차로 카테고리를 분류할 수 있게 하는 코드로 짜보기
-    public CategoryEntity classifyCategory(String content) {
-
-        if (content.contains("기술")) {
-            return categoryRepository.findByName("기술")
-                    .orElseThrow(() -> new NotFoundException("Category not found"));
-        } else if (content.contains("생활")) {
-            return categoryRepository.findByName("생활")
-                    .orElseThrow(() -> new NotFoundException("Category not found"));
-        }
-        // 기본적으로 다른 카테고리로 분류하거나 기타 카테고리를 반환
-        return categoryRepository.findByName("기타")
-                .orElseThrow(() -> new NotFoundException("Category not found"));
-    }
-}
+//    public CategoryEntity classifyCategory(String content) {
+//
+//        if (content.contains("기술")) {
+//            return categoryRepository.findByName("기술")
+//                    .orElseThrow(() -> new NotFoundException("Category not found"));
+//        } else if (content.contains("생활")) {
+//            return categoryRepository.findByName("생활")
+//                    .orElseThrow(() -> new NotFoundException("Category not found"));
+//        }
+//        // 기본적으로 다른 카테고리로 분류하거나 기타 카테고리를 반환
+//        return categoryRepository.findByName("기타")
+//                .orElseThrow(() -> new NotFoundException("Category not found"));
+//    }
+//}
 
 }

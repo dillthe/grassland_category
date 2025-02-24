@@ -39,6 +39,5 @@ public class LogEntity {
     private Boolean matchedKeywords = false;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    @CreationTimestamp
-    private ZonedDateTime createdAt;
+    private ZonedDateTime createdAt = ZonedDateTime.now();
 }

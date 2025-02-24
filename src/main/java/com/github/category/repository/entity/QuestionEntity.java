@@ -24,14 +24,13 @@ public class QuestionEntity {
     @Column(name = "question_id")
     private int questionId;
 
-    @Column(name = "content", nullable = false, columnDefinition = "TEXT")
-    private String content;
+    @Column(name = "question", nullable = false, columnDefinition = "TEXT")
+    private String question;
 
     @ManyToOne
     @JoinColumn(name = "category_id")
     private CategoryEntity category;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    @CreationTimestamp
-    private ZonedDateTime createdAt;
+    private ZonedDateTime createdAt = ZonedDateTime.now();
 }

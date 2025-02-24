@@ -5,16 +5,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.security.Timestamp;
+import java.time.ZonedDateTime;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class LogDTO {
-    private Long logId;
-    private Long questionId;
+    private int logId;
+    private int questionId;
     private String questionText;
-    private Long categoryId;
+    private int categoryId;
     private Boolean matchedKeywords;
-    private Timestamp createdAt;
+    private ZonedDateTime createdAt;
 }

@@ -13,6 +13,6 @@ import java.time.ZonedDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class QuestionBody {
-    private String content;
+    private String question;
     private ZonedDateTime createdAt;
 }

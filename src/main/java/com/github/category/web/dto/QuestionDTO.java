@@ -14,7 +14,7 @@ import java.time.ZonedDateTime;
 @AllArgsConstructor
 public class QuestionDTO {
     private int questionId;
-    private String content;
+    private String question;
     private int categoryId;
     private ZonedDateTime createdAt;
 }
