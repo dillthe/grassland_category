@@ -12,9 +12,7 @@ import java.time.ZonedDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class QuestionDTO {
-    private int questionId;
+public class QuestionBody {
     private String content;
-    private int categoryId;
     private ZonedDateTime createdAt;
 }

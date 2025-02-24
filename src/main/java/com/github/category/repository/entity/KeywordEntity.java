@@ -8,6 +8,7 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.security.Timestamp;
+import java.time.ZonedDateTime;
 
 
 @Getter
@@ -29,5 +30,5 @@ public class KeywordEntity {
 
     @Column(name = "created_at", nullable = false, updatable = false)
     @CreationTimestamp
-    private Timestamp createdAt;
+    private ZonedDateTime createdAt;
 }

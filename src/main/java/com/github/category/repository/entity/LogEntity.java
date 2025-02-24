@@ -8,6 +8,7 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.security.Timestamp;
+import java.time.ZonedDateTime;
 
 
 @Getter
@@ -21,7 +22,7 @@ public class LogEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "log_id")
-    private Long logId;
+    private int logId;
 
     @ManyToOne
     @JoinColumn(name = "question_id", nullable = false)
@@ -39,5 +40,5 @@ public class LogEntity {
 
     @Column(name = "created_at", nullable = false, updatable = false)
     @CreationTimestamp
-    private Timestamp createdAt;
+    private ZonedDateTime createdAt;
 }

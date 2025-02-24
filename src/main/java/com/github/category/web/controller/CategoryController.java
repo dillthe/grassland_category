@@ -19,26 +19,33 @@ public class CategoryController {
     @Operation(summary="Create a new category")
     @PostMapping
     public String createCategory(@RequestBody CategoryBody categoryBody){
-        System.out.println("📌 Received request: " + categoryBody);
         String category = categoryService.createCategory(categoryBody);
-        return "CategoryId:" + category + "was created";
+        return "Category:" + category + "was created";
     }
 
-//    @Operation(summary="Create many categories")
-//    @PostMapping("/api/category/batch")
-//    public String createCategories(@RequestBody List<CategoryBody> categoryBodies){
-//        List<String> categories = categoryService.createCategories(categoryBodies);
-//        return "Categories:" + categories + "were created";
-//    }
+    @Operation(summary="Create many categories")
+    @PostMapping("/batch")
+    public String createCategories(@RequestBody List<CategoryBody> categoryBodies){
+        List<String> categories = categoryService.createCategories(categoryBodies);
+        return "Categories:" + categories + "were created";
+    }
 
-//    @Operation(summary="Get all categories")
+    @Operation(summary="Update a category information")
+    @PutMapping("/{categoryId}")
+    public String updateCategory(@PathVariable int categoryId, @RequestBody CategoryBody categoryBody) {
+        String updatedCategory = categoryService.updateCategory(categoryId, categoryBody);
+        return "Category " + updatedCategory + "is updated.";
+    }
+
+
+    @Operation(summary="Get all categories")
     @GetMapping
     public List<CategoryDTO> getAllCategories(){
         return categoryService.getAllCategories();
     }
 
-//    @Operation(summary="Delete a category")
-    @DeleteMapping
+    @Operation(summary="Delete a category")
+    @DeleteMapping("/{categoryId}")
     public String deleteCategory(@PathVariable int categoryId){
         String deletion = categoryService.deleteCategory(categoryId);
         return deletion;
