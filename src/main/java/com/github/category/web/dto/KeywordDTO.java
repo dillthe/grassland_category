@@ -1,9 +1,7 @@
 package com.github.category.web.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+
 import java.security.Timestamp;
 import java.time.ZonedDateTime;
 
@@ -11,9 +9,9 @@ import java.time.ZonedDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class KeywordDTO {
     private int keywordId;
     private int categoryId;
     private String keyword;
-    private ZonedDateTime createdAt;
 }

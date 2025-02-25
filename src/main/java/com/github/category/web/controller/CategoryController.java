@@ -34,7 +34,7 @@ public class CategoryController {
     @PutMapping("/{categoryId}")
     public String updateCategory(@PathVariable int categoryId, @RequestBody CategoryBody categoryBody) {
         String updatedCategory = categoryService.updateCategory(categoryId, categoryBody);
-        return "Category " + updatedCategory + "is updated.";
+        return updatedCategory;
     }
 
 

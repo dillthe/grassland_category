@@ -25,12 +25,9 @@ public class KeywordEntity {
     private int keywordId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", nullable = false)  // category_id 컬럼 외래 키 설정
+    @JoinColumn(name = "category_id", nullable = false)
     private CategoryEntity categoryEntity;
 
     @Column(name = "keyword", nullable = false)
     private String keyword;
-
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private ZonedDateTime createdAt = ZonedDateTime.now();
 }

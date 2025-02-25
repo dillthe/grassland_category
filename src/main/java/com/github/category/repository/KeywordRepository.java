@@ -6,13 +6,24 @@ import com.github.category.repository.entity.KeywordEntity;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface KeywordRepository extends JpaRepository<KeywordEntity, Integer> {
+    static void deleteByKeyword(KeywordEntity existingKeyword) {
+    }
+
+    static void deleteById(KeywordEntity existingKeyword) {
+    }
+
     List<KeywordEntity> findAllByCategoryEntity(CategoryEntity categoryEntity);
 
-    boolean existsByKeyword(String keyword);
 
-    boolean existsByCategoryEntityAndKeyword(int categoryId, String keyword);
+    boolean existsByCategoryEntityAndKeyword(CategoryEntity categoryEntity, String keyword);
+
+
+    Optional<Object> findByKeywordAndCategoryEntity(String keyword, CategoryEntity categoryEntity);
+
+    Optional<Object> findByKeywordIdAndCategoryEntity(int keywordId, CategoryEntity categoryEntity);
 }
 

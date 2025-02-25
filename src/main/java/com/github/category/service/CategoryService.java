@@ -3,7 +3,10 @@ package com.github.category.service;
 
 import com.github.category.repository.CategoryRepository;
 import com.github.category.repository.entity.CategoryEntity;
+import com.github.category.service.exceptions.ConflictException;
+import com.github.category.service.exceptions.InvalidValueException;
 import com.github.category.service.exceptions.NotAcceptException;
+import com.github.category.service.exceptions.NotFoundException;
 import com.github.category.service.mapper.CategoryMapper;
 import com.github.category.web.dto.CategoryBody;
 import com.github.category.web.dto.CategoryDTO;
@@ -11,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -49,11 +53,15 @@ public class CategoryService {
         CategoryEntity existingCategory = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new NotAcceptException("Category doesn't exist"));
 
+        if (Objects.equals(existingCategory.getName(), categoryBody.getName())) {
+            throw new ConflictException("The new category name is the same as the current category name: " + categoryBody.getName());
+        }
+
         existingCategory.setName(categoryBody.getName());
         CategoryEntity updatedCategory = categoryRepository.save(existingCategory);
         CategoryDTO categoryDTO = CategoryMapper.INSTANCE.categoryEntityToCategoryDTO(updatedCategory);
 
-        return "Category Id: " + categoryId + ", Category Name: " + categoryDTO.getName() + "is deleted.";
+        return "Category Id: " + categoryId + ", Category Name is updated to " + categoryDTO.getName() ;
 
     }
 
@@ -65,7 +73,7 @@ public class CategoryService {
 
     public String deleteCategory(int categoryId) {
         CategoryEntity existingCategory = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new NotAcceptException("Category doesn't exist"));
+                .orElseThrow(() -> new NotFoundException("Category doesn't exist"));
         categoryRepository.deleteById(categoryId);
         return "Category Id: " + categoryId + ", Category Name: " + existingCategory.getName() + "is deleted.";
     }

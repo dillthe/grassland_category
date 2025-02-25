@@ -1,5 +1,6 @@
 package com.github.category.web.controller;
 
+import com.github.category.repository.entity.CategoryEntity;
 import com.github.category.service.KeywordService;
 import com.github.category.web.dto.KeywordBody;
 import com.github.category.web.dto.KeywordDTO;
@@ -16,30 +17,47 @@ import java.util.List;
 public class KeywordController {
 
     private final KeywordService keywordService;
-    // 키워드 전체 조회
+
+    @Operation(summary="Get all keywords")
     @GetMapping
     public List<KeywordDTO> getAllKeywords() {
         return keywordService.getAllKeywords();
     }
 
 
-    @GetMapping({"/{categoryId}")
-    public List<KeywordDTO> getKeywordsByCategory(int categoryId) {
+    @Operation(summary="Get keywords by a category")
+    @GetMapping("/{categoryId}")
+    public List<KeywordDTO> getKeywordsByCategory(@PathVariable int categoryId) {
         return  keywordService.getKeywordsByCategory(categoryId);
     }
 
     @Operation(summary="Add a keyword")
     @PostMapping("/{categoryId}")
-    public KeywordDTO createKeyword(@PathVariable int categoryId, @RequestBody KeywordBody keywordBody) {
-        return keywordService.createKeyword(categoryId, keywordBody);
+    public String createKeyword(@PathVariable int categoryId, @RequestBody KeywordBody keywordBody) {
+        KeywordDTO keywordDTO = keywordService.createKeyword(categoryId, keywordBody);
+        return keywordDTO + "is successfully added!";
     }
 
-    // 키워드 삭제
-    @DeleteMapping("/{categoryId}/{keyword}")
-    public void deleteKeyword(@PathVariable Long categoryId, @PathVariable String keyword) {
-        boolean deleted = keywordService.deleteKeyword(categoryId, keyword);
-        if (!deleted) {
-            throw new NotFoundException("Keyword not found");
-        }
+    @Operation(summary="Add many keywords")
+    @PostMapping("/{categoryId}/batch")
+    public String createKeywords(@PathVariable int categoryId, @RequestBody List<KeywordBody> keywordBodies) {
+        List<KeywordDTO> keywordDTOs = keywordService.createKeywords(categoryId, keywordBodies);
+        return "Keywords are added successfully!" + keywordDTOs.toString();
     }
+
+    // 키워드 이름으로 삭제
+    @Operation(summary="Delete a keyword by Keyword")
+    @DeleteMapping("/{categoryId}")
+    public String deleteKeyword(@PathVariable int categoryId, @RequestBody KeywordBody keywordBody) {
+        return keywordService.deleteKeyword(categoryId, keywordBody);
+    }
+
+    //키워드 id로 삭제
+    @Operation(summary="Delete a keyword by Id")
+    @DeleteMapping("/{categoryId}/{keywordId}")
+    public String deleteKeyword(@PathVariable int categoryId, @PathVariable int keywordId) {
+        String deletion = keywordService.deleteKeywordById(categoryId, keywordId);
+        return deletion;
+    }
+
 }

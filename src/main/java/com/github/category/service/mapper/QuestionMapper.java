@@ -14,7 +14,7 @@ import java.util.List;
 public interface QuestionMapper {
     QuestionMapper INSTANCE = Mappers.getMapper(QuestionMapper.class);
 
-    @Mapping(target = "content", source = "questionBody.content")
+    @Mapping(target = "question", source = "questionBody.question")
 //    @Mapping(target = "createdTimeAt", expression = "java(java.time.ZonedDateTime.now())")
     QuestionEntity idAndQuestionBodyToQuestionEntity(Integer id, QuestionBody questionBody);
 
