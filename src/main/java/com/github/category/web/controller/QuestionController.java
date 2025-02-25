@@ -20,7 +20,7 @@ public class QuestionController {
     @PostMapping
     public String createQuestion(@RequestBody QuestionBody questionBody) {
         QuestionDTO createdQuestion = questionService.createQuestion(questionBody);
-        return "Question created: " + createdQuestion;
+        return "Question is created: " + createdQuestion.getQuestion();
     }
     @Operation(summary = "Get all questions")
     @GetMapping
