@@ -18,7 +18,9 @@ public interface QuestionMapper {
 //    @Mapping(target = "createdTimeAt", expression = "java(java.time.ZonedDateTime.now())")
     QuestionEntity idAndQuestionBodyToQuestionEntity(Integer id, QuestionBody questionBody);
 
+    @Mapping(target="categoryName", source = "categoryEntity.name")
     QuestionDTO questionEntityToQuestionDTO(QuestionEntity questionEntity);
 
+    @Mapping(target="categoryName", source = "categoryEntity.name")
     List<QuestionDTO> questionEntitiesToQuestionDTOs(List<QuestionEntity> questionEntities);
 }

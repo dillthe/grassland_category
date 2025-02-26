@@ -15,6 +15,9 @@ public class LogDTO {
     private int questionId;
     private String questionText;
     private int categoryId;
+    private String categoryName;
     private Boolean matchedKeywords;
+//    private String logLevel;
+//    private String message;
     private ZonedDateTime createdAt;
 }

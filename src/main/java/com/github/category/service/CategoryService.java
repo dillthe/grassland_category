@@ -2,7 +2,9 @@ package com.github.category.service;
 
 
 import com.github.category.repository.CategoryRepository;
+import com.github.category.repository.KeywordRepository;
 import com.github.category.repository.entity.CategoryEntity;
+import com.github.category.repository.entity.KeywordEntity;
 import com.github.category.service.exceptions.ConflictException;
 import com.github.category.service.exceptions.InvalidValueException;
 import com.github.category.service.exceptions.NotAcceptException;
@@ -21,6 +23,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CategoryService {
     private final CategoryRepository categoryRepository;
+    private final KeywordRepository keywordRepository;
 
     public String createCategory(CategoryBody categoryBody) {
         boolean categoryExists = categoryRepository.existsByName(categoryBody.getName());
@@ -78,7 +81,17 @@ public class CategoryService {
         return "Category Id: " + categoryId + ", Category Name: " + existingCategory.getName() + "is deleted.";
     }
 
+    public String determineCategory(String questionText) {
+        List<KeywordEntity> keywords = keywordRepository.findAll();
 
+        for (KeywordEntity keyword : keywords) {
+            if (questionText.contains(keyword.getKeyword())) {
+                return keyword.getCategoryEntity().getName();
+            }
+        }
+
+        return "General"; // 매칭되는 키워드가 없으면 기본 카테고리
+    }
     //먼저 키워드를 통해 분류할 수 있게 하고, AI를 통해 2차로 카테고리를 분류할 수 있게 하는 코드로 짜보기
 //    public CategoryEntity classifyCategory(String content) {
 //

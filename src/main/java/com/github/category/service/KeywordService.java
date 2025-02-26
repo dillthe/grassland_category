@@ -77,12 +77,13 @@ public class KeywordService {
         return keywordDTOs;
     }
 
+
     // 키워드 삭제(키워드 Keyword로 조회)
     public String deleteKeyword(int categoryId, KeywordBody keywordBody) {
         CategoryEntity categoryEntity = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new NotFoundException("Category with ID " + categoryId + " doesn't exist"));
 
-        KeywordEntity existingKeyword = (KeywordEntity) keywordRepository.findByKeywordAndCategoryEntity(keywordBody.getKeyword(), categoryEntity)
+        KeywordEntity existingKeyword =keywordRepository.findByKeywordAndCategoryEntity(keywordBody.getKeyword(), categoryEntity)
                 .orElseThrow(() -> new NotFoundException("Keyword doesn't exist in the specified category"));
         KeywordRepository.deleteByKeyword(existingKeyword);
         return "Keyword Id: " + existingKeyword.getKeywordId() + ", Keyword Name: " + existingKeyword.getKeyword() + "is deleted.";
@@ -93,10 +94,23 @@ public class KeywordService {
         CategoryEntity categoryEntity = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new NotFoundException("Category with ID " + categoryId + " doesn't exist"));
 
-        KeywordEntity existingKeyword = (KeywordEntity) keywordRepository.findByKeywordIdAndCategoryEntity(keywordId,categoryEntity)
+        KeywordEntity existingKeyword =keywordRepository.findByKeywordIdAndCategoryEntity(keywordId,categoryEntity)
             .orElseThrow(() -> new NotFoundException("Keyword doesn't exist in the specified category"));
-        KeywordRepository.deleteById(existingKeyword);
+        KeywordRepository.deleteById(existingKeyword.getKeywordId());
         return "Keyword Id: " + existingKeyword.getKeywordId() + ", Keyword Name: " + existingKeyword.getKeyword() + "is deleted.";
+    }
+
+    //키워드 삭제 (해당 카테고리 내 전체 키워드 삭제)
+    public String deleteAllKeywordsByCategory(int categoryId) {
+        CategoryEntity categoryEntity = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new NotFoundException("Category with ID " + categoryId + " doesn't exist"));
+
+        List<KeywordEntity> existingKeywords = keywordRepository.findAllByCategoryEntity(categoryEntity);
+        if (existingKeywords.isEmpty()) {
+            throw new NotFoundException("No keywords found in the specified category");
+        }
+        keywordRepository.deleteAll(existingKeywords);
+        return "Deleted " + existingKeywords.size() + " keywords in category: " + categoryEntity.getName();
     }
 }
 

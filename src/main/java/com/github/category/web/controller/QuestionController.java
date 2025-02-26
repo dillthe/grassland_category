@@ -1,5 +1,6 @@
 package com.github.category.web.controller;
 
+import com.github.category.repository.entity.CategoryEntity;
 import com.github.category.service.QuestionService;
 import com.github.category.web.dto.QuestionBody;
 import com.github.category.web.dto.QuestionDTO;
@@ -19,8 +20,8 @@ public class QuestionController {
     @Operation(summary = "Create a question")
     @PostMapping
     public String createQuestion(@RequestBody QuestionBody questionBody) {
-        QuestionDTO createdQuestion = questionService.createQuestion(questionBody);
-        return "Question is created: " + createdQuestion.getQuestion();
+        String createdQuestion = questionService.createQuestion(questionBody);
+        return createdQuestion;
     }
     @Operation(summary = "Get all questions")
     @GetMapping

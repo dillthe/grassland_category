@@ -14,5 +14,6 @@ public class QuestionDTO {
     private int questionId;
     private String question;
     private int categoryId;
+    private String categoryName;
     private ZonedDateTime createdAt;
 }

@@ -60,4 +60,12 @@ public class KeywordController {
         return deletion;
     }
 
+    //카테고리 내 전체 키워드 삭제
+    @Operation(summary="Delete all keywords by Category")
+    @DeleteMapping("/all/{categoryId}")
+    public String deleteKeyword(@PathVariable int categoryId) {
+        String deletion = keywordService.deleteAllKeywordsByCategory(categoryId);
+        return deletion;
+    }
+
 }

@@ -13,8 +13,9 @@ public interface KeywordRepository extends JpaRepository<KeywordEntity, Integer>
     static void deleteByKeyword(KeywordEntity existingKeyword) {
     }
 
-    static void deleteById(KeywordEntity existingKeyword) {
+    static void deleteById(int existingKeyword) {
     }
+
 
     List<KeywordEntity> findAllByCategoryEntity(CategoryEntity categoryEntity);
 
@@ -22,8 +23,10 @@ public interface KeywordRepository extends JpaRepository<KeywordEntity, Integer>
     boolean existsByCategoryEntityAndKeyword(CategoryEntity categoryEntity, String keyword);
 
 
-    Optional<Object> findByKeywordAndCategoryEntity(String keyword, CategoryEntity categoryEntity);
+    Optional<KeywordEntity> findByKeywordAndCategoryEntity(String keyword, CategoryEntity categoryEntity);
 
-    Optional<Object> findByKeywordIdAndCategoryEntity(int keywordId, CategoryEntity categoryEntity);
+    Optional<KeywordEntity> findByKeywordIdAndCategoryEntity(int keywordId, CategoryEntity categoryEntity);
+
+
 }
 

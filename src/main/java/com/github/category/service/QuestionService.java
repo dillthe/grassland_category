@@ -10,8 +10,10 @@ import com.github.category.service.exceptions.NotFoundException;
 import com.github.category.service.mapper.QuestionMapper;
 import com.github.category.web.dto.QuestionBody;
 import com.github.category.web.dto.QuestionDTO;
+import jdk.jfr.Category;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -23,6 +25,7 @@ public class QuestionService {
 
     private final QuestionRepository questionRepository;
     private final CategoryRepository categoryRepository;
+    private final CategoryService categoryService;
 
 
     public QuestionEntity createQuestion(String question, String userTimeZone) {
@@ -38,11 +41,17 @@ public class QuestionService {
         return questionRepository.save(questionEntity);
     }
 
-    public QuestionDTO createQuestion(QuestionBody questionBody) {
+    @Transactional
+    public String createQuestion(QuestionBody questionBody) {
         QuestionEntity questionEntity = QuestionMapper.INSTANCE.idAndQuestionBodyToQuestionEntity(null,questionBody);
+        //질문에서 키워드 뽑아 카테고리 분류하기
+        String categoryName = categoryService.determineCategory(questionBody.getQuestion());
+        CategoryEntity categoryEntity = categoryRepository.findByName(categoryName)
+                        .orElseThrow(()->new NotFoundException("Can't find the category" + categoryName));
+        questionEntity.setCategoryEntity(categoryEntity);
         QuestionEntity questionCreated = questionRepository.save(questionEntity);
         QuestionDTO questionDTO = QuestionMapper.INSTANCE.questionEntityToQuestionDTO(questionCreated);
-        return questionDTO;
+        return "Question is created: " + questionDTO.getQuestion() + ", Category Name: " + questionDTO.getCategoryName();
     }
 
 
