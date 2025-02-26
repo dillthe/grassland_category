@@ -10,3 +10,6 @@ spring:
       url: jdbc:mysql://localhost:3306/classification?useUnicode=true&characterEncoding=UTF-8
       username: root
       password: 8282
+openai:
+  api:
+    key: ${OPENAI_API_KEY}

@@ -14,13 +14,18 @@ import java.util.List;
 public interface QuestionMapper {
     QuestionMapper INSTANCE = Mappers.getMapper(QuestionMapper.class);
 
+
     @Mapping(target = "question", source = "questionBody.question")
 //    @Mapping(target = "createdTimeAt", expression = "java(java.time.ZonedDateTime.now())")
     QuestionEntity idAndQuestionBodyToQuestionEntity(Integer id, QuestionBody questionBody);
 
     @Mapping(target="categoryName", source = "categoryEntity.name")
+    @Mapping(target="questionId", source = "questionId")
+    @Mapping(target="categoryId", source="categoryEntity.categoryId")
     QuestionDTO questionEntityToQuestionDTO(QuestionEntity questionEntity);
 
+    @Mapping(target="questionId", source = "questionId")
     @Mapping(target="categoryName", source = "categoryEntity.name")
+    @Mapping(target="categoryId", source="categoryId")
     List<QuestionDTO> questionEntitiesToQuestionDTOs(List<QuestionEntity> questionEntities);
 }

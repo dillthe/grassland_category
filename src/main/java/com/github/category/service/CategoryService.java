@@ -13,7 +13,9 @@ import com.github.category.service.mapper.CategoryMapper;
 import com.github.category.web.dto.CategoryBody;
 import com.github.category.web.dto.CategoryDTO;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
@@ -24,6 +26,9 @@ import java.util.stream.Collectors;
 public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final KeywordRepository keywordRepository;
+    private final OpenAIService openAIService;
+    private final LevenshteinDistance levenshtein = new LevenshteinDistance();
+
 
     public String createCategory(CategoryBody categoryBody) {
         boolean categoryExists = categoryRepository.existsByName(categoryBody.getName());
@@ -64,7 +69,7 @@ public class CategoryService {
         CategoryEntity updatedCategory = categoryRepository.save(existingCategory);
         CategoryDTO categoryDTO = CategoryMapper.INSTANCE.categoryEntityToCategoryDTO(updatedCategory);
 
-        return "Category Id: " + categoryId + ", Category Name is updated to " + categoryDTO.getName() ;
+        return "Category Id: " + categoryId + ", Category Name is updated to " + categoryDTO.getName();
 
     }
 
@@ -74,6 +79,15 @@ public class CategoryService {
         return categoryDTOs;
     }
 
+//    전체 카테고리 및 카테고리에 포함된 전체 키워드 조회
+    @Transactional
+    public List<CategoryEntity> getCategoriesWithKeywords() {
+        return categoryRepository.findAllWithKeywords();
+    }
+
+
+
+
     public String deleteCategory(int categoryId) {
         CategoryEntity existingCategory = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new NotFoundException("Category doesn't exist"));
@@ -81,7 +95,21 @@ public class CategoryService {
         return "Category Id: " + categoryId + ", Category Name: " + existingCategory.getName() + "is deleted.";
     }
 
-    public String determineCategory(String questionText) {
+    public String determineCategory(String questionText){
+        List<String> categories = categoryRepository.findAll()
+                .stream()
+                .map(CategoryEntity::getName)
+                .collect(Collectors.toList());
+
+        String category = simpleKeywordMatching(questionText);
+        if (category == null) {
+            category = openAIService.categorizeQuestion(questionText,categories);
+            category = findClosestCategory(category, categories); // 유사한 카테고리 찾기
+        }
+        return category;
+    }
+
+    public String simpleKeywordMatching(String questionText) {
         List<KeywordEntity> keywords = keywordRepository.findAll();
 
         for (KeywordEntity keyword : keywords) {
@@ -90,22 +118,16 @@ public class CategoryService {
             }
         }
 
-        return "General"; // 매칭되는 키워드가 없으면 기본 카테고리
+        return null; // 매칭되는 키워드가 없으면 기본 카테고리
     }
-    //먼저 키워드를 통해 분류할 수 있게 하고, AI를 통해 2차로 카테고리를 분류할 수 있게 하는 코드로 짜보기
-//    public CategoryEntity classifyCategory(String content) {
-//
-//        if (content.contains("기술")) {
-//            return categoryRepository.findByName("기술")
-//                    .orElseThrow(() -> new NotFoundException("Category not found"));
-//        } else if (content.contains("생활")) {
-//            return categoryRepository.findByName("생활")
-//                    .orElseThrow(() -> new NotFoundException("Category not found"));
-//        }
-//        // 기본적으로 다른 카테고리로 분류하거나 기타 카테고리를 반환
-//        return categoryRepository.findByName("기타")
-//                .orElseThrow(() -> new NotFoundException("Category not found"));
-//    }
-//}
 
+    private String findClosestCategory(String input, List<String> categories) {
+        return categories.stream()
+                .min((c1, c2) -> Integer.compare(
+                        levenshtein.apply(input, c1),
+                        levenshtein.apply(input, c2)))
+                .orElse("General");
+    }
 }
+
+

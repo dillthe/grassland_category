@@ -1,6 +1,7 @@
 package com.github.category.web.controller;
 
 
+import com.github.category.repository.entity.CategoryEntity;
 import com.github.category.web.dto.CategoryBody;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
@@ -43,6 +44,15 @@ public class CategoryController {
     public List<CategoryDTO> getAllCategories(){
         return categoryService.getAllCategories();
     }
+
+
+    @Operation(summary="Get all categories with keywords")
+    @GetMapping("/with-keywords")
+    public List<CategoryEntity> getCategoriesWithKeywords() {
+        List<CategoryEntity> categories = categoryService.getCategoriesWithKeywords();
+        return categories;
+    }
+
 
     @Operation(summary="Delete a category")
     @DeleteMapping("/{categoryId}")

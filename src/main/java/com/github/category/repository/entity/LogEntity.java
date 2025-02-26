@@ -26,14 +26,14 @@ public class LogEntity {
 
     @ManyToOne
     @JoinColumn(name = "question_id", nullable = false)
-    private QuestionEntity question;
+    private QuestionEntity questionEntity;
 
     @Column(name = "question_text", nullable = false, columnDefinition = "TEXT")
     private String questionText;
 
     @ManyToOne
     @JoinColumn(name = "category_id")
-    private CategoryEntity category;
+    private CategoryEntity categoryEntity;
 
     @Column(name = "matched_keywords", nullable = false)
     private Boolean matchedKeywords = false;

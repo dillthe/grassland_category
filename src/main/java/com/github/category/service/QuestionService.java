@@ -42,17 +42,17 @@ public class QuestionService {
     }
 
     @Transactional
-    public String createQuestion(QuestionBody questionBody) {
-        QuestionEntity questionEntity = QuestionMapper.INSTANCE.idAndQuestionBodyToQuestionEntity(null,questionBody);
-        //질문에서 키워드 뽑아 카테고리 분류하기
-        String categoryName = categoryService.determineCategory(questionBody.getQuestion());
-        CategoryEntity categoryEntity = categoryRepository.findByName(categoryName)
-                        .orElseThrow(()->new NotFoundException("Can't find the category" + categoryName));
-        questionEntity.setCategoryEntity(categoryEntity);
-        QuestionEntity questionCreated = questionRepository.save(questionEntity);
-        QuestionDTO questionDTO = QuestionMapper.INSTANCE.questionEntityToQuestionDTO(questionCreated);
-        return "Question is created: " + questionDTO.getQuestion() + ", Category Name: " + questionDTO.getCategoryName();
-    }
+        public String createQuestion(QuestionBody questionBody) {
+            QuestionEntity questionEntity = QuestionMapper.INSTANCE.idAndQuestionBodyToQuestionEntity(null,questionBody);
+            //질문에서 키워드 뽑아 카테고리 분류하기
+            String categoryName = categoryService.determineCategory(questionBody.getQuestion());
+            CategoryEntity categoryEntity = categoryRepository.findByName(categoryName)
+                            .orElseThrow(()->new NotFoundException("Can't find the category" + categoryName));
+            questionEntity.setCategoryEntity(categoryEntity);
+            QuestionEntity questionCreated = questionRepository.save(questionEntity);
+            QuestionDTO questionDTO = QuestionMapper.INSTANCE.questionEntityToQuestionDTO(questionCreated);
+            return "Question is created: " + questionDTO.getQuestion() + ", Category Name: " + questionDTO.getCategoryName();
+        }
 
 
     //전체 질문 조회

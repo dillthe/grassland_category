@@ -1,5 +1,6 @@
 package com.github.category.repository.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,6 +26,7 @@ public class CategoryEntity {
     @Column(name = "name", nullable = false)
     private String name;
 
+    @JsonManagedReference
     @OneToMany(mappedBy = "categoryEntity", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<KeywordEntity> keywords;
 
