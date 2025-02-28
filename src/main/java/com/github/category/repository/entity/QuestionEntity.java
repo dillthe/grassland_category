@@ -9,6 +9,8 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.security.Timestamp;
 import java.time.ZonedDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 
 @Getter
@@ -33,4 +35,7 @@ public class QuestionEntity {
 
     @Column(name = "created_at", updatable = false)
     private ZonedDateTime createdAt = ZonedDateTime.now();
+
+    @ManyToMany(mappedBy = "questions")
+    private Set<TagEntity> tags = new HashSet<>();
 }

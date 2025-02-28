@@ -3,8 +3,10 @@ package com.github.category.service;
 
 import com.github.category.repository.CategoryRepository;
 import com.github.category.repository.QuestionRepository;
+import com.github.category.repository.TagRepository;
 import com.github.category.repository.entity.CategoryEntity;
 import com.github.category.repository.entity.QuestionEntity;
+import com.github.category.repository.entity.TagEntity;
 import com.github.category.service.exceptions.NotAcceptException;
 import com.github.category.service.exceptions.NotFoundException;
 import com.github.category.service.mapper.QuestionMapper;
@@ -25,6 +27,7 @@ public class QuestionService {
 
     private final QuestionRepository questionRepository;
     private final CategoryRepository categoryRepository;
+    private final TagRepository tagRepository;
     private final CategoryService categoryService;
 
 
@@ -46,12 +49,40 @@ public class QuestionService {
             QuestionEntity questionEntity = QuestionMapper.INSTANCE.idAndQuestionBodyToQuestionEntity(null,questionBody);
             //질문에서 키워드 뽑아 카테고리 분류하기
             String categoryName = categoryService.determineCategory(questionBody.getQuestion());
+            System.out.println("Determined category: " + categoryName);  // 로그 추가
+
+            if (categoryName == null || categoryName.trim().isEmpty()) {
+                categoryName = "기타";  // 기본값 설정
+            }
             CategoryEntity categoryEntity = categoryRepository.findByName(categoryName)
-                            .orElseThrow(()->new NotFoundException("Can't find the category" + categoryName));
-            questionEntity.setCategoryEntity(categoryEntity);
+                    .orElse(null);  // 카테고리가 없다면 null 반환
+
+            //카테고리가 존재하지 않으면 DB에 저장하지 않고 그대로 사용 (null로 두기, 대신 tag로 등록함)
+            if (categoryEntity == null) {
+                // 카테고리가 없으므로 DB에 저장하지 않음
+                System.out.println("category: null, tag: " + categoryName);
+            } else {
+                // 카테고리가 DB에 존재하면, QuestionEntity에 해당 카테고리 설정
+                questionEntity.setCategoryEntity(categoryEntity);
+            }
+
+        String tagName = categoryName;
+        TagEntity tagEntity = tagRepository.findByTag(categoryName)
+                    .orElseGet(() -> {
+                        // Tag가 없으면 새로 생성
+                        TagEntity newTag = new TagEntity();
+                        newTag.setTag(tagName);
+                        tagRepository.save(newTag); // 새 태그 저장
+                        return newTag; // 저장된 새 태그 반환
+                    });
+            questionEntity.getTags().add(tagEntity);
+            tagEntity.getQuestions().add(questionEntity);
+
+
             QuestionEntity questionCreated = questionRepository.save(questionEntity);
+            tagRepository.save(tagEntity);
             QuestionDTO questionDTO = QuestionMapper.INSTANCE.questionEntityToQuestionDTO(questionCreated);
-            return "Question is created: " + questionDTO.getQuestion() + ", Category Name: " + questionDTO.getCategoryName();
+            return "Question is created: " + questionDTO.getQuestion() + ", Category: " + questionDTO.getCategoryName() + ", Tag: " + tagName ;
         }
 
 
