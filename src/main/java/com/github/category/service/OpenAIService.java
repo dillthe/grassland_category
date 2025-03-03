@@ -21,9 +21,9 @@ public class OpenAIService {
     public String categorizeQuestion(String question, List<String> categories) {
         RestTemplate restTemplate = new RestTemplate();
         String categoriesJson = String.join(", ", categories);
-        String prompt = "질문과 연관된 카테고리 명이나 태그 명을 이름으로 간단하게 반환해 "
+        String prompt = "질문과 연관된 카테고리 명이나 키워드, 태그 명을 이름으로 간단하게 반환해 "
                 +  " **질문:** \"" + question + "\"\n\n" +
-                " **정확한 카테고리 이름만 한 단어로 반환하세요.** (예: '인간관계', '기도와 신앙생활')\n" +
+                " **정확한 관련있는 이름만 한 단어로 반환하세요. 관련있는 단어가 많다면 여러개 반환해도 됩니다.** (예: '인간관계', '기도와 신앙생활')\n" +
                 " '기타'는 가급적 사용하지 마세요. 꼭 필요할 경우에만 사용하세요.";
 //
 

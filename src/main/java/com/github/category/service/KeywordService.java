@@ -2,8 +2,11 @@ package com.github.category.service;
 
 import com.github.category.repository.CategoryRepository;
 import com.github.category.repository.KeywordRepository;
+import com.github.category.repository.TagRepository;
 import com.github.category.repository.entity.CategoryEntity;
 import com.github.category.repository.entity.KeywordEntity;
+import com.github.category.repository.entity.QuestionEntity;
+import com.github.category.repository.entity.TagEntity;
 import com.github.category.service.exceptions.NotAcceptException;
 import com.github.category.service.exceptions.NotFoundException;
 import com.github.category.service.mapper.CategoryMapper;
@@ -12,15 +15,19 @@ import com.github.category.web.dto.KeywordBody;
 import com.github.category.web.dto.KeywordDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class KeywordService {
     private final KeywordRepository keywordRepository;
     private final CategoryRepository categoryRepository;
+    private final TagRepository tagRepository;
 
     // 키워드 전체 조회
     public List<KeywordDTO> getAllKeywords() {
@@ -111,6 +118,25 @@ public class KeywordService {
         }
         keywordRepository.deleteAll(existingKeywords);
         return "Deleted " + existingKeywords.size() + " keywords in category: " + categoryEntity.getName();
+    }
+
+    @Transactional
+    public Set<TagEntity> createTagsFromMatchedKeywords(List<String> matchedKeywords, QuestionEntity questionEntity) {
+        Set<TagEntity> tagEntities = new HashSet<>();
+
+        for (String keyword : matchedKeywords) {
+            TagEntity tagEntity = tagRepository.findByTag(keyword)
+                    .orElseGet(() -> {
+                        TagEntity newTag = new TagEntity();
+                        newTag.setTag(keyword);
+                        return tagRepository.save(newTag);
+                    });
+
+            tagEntities.add(tagEntity);
+            tagEntity.getQuestions().add(questionEntity);
+        }
+
+        return tagEntities;
     }
 }
 

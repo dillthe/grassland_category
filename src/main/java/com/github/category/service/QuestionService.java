@@ -5,30 +5,39 @@ import com.github.category.repository.CategoryRepository;
 import com.github.category.repository.QuestionRepository;
 import com.github.category.repository.TagRepository;
 import com.github.category.repository.entity.CategoryEntity;
+import com.github.category.repository.entity.KeywordEntity;
 import com.github.category.repository.entity.QuestionEntity;
 import com.github.category.repository.entity.TagEntity;
 import com.github.category.service.exceptions.NotAcceptException;
 import com.github.category.service.exceptions.NotFoundException;
 import com.github.category.service.mapper.QuestionMapper;
+import com.github.category.web.controller.QuestionController;
 import com.github.category.web.dto.QuestionBody;
 import com.github.category.web.dto.QuestionDTO;
-import jdk.jfr.Category;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class QuestionService {
 
     private final QuestionRepository questionRepository;
     private final CategoryRepository categoryRepository;
     private final TagRepository tagRepository;
     private final CategoryService categoryService;
+    private final KeywordService keywordService;
+    private static final Logger logger = LoggerFactory.getLogger(QuestionService.class);
+
 
 
     public QuestionEntity createQuestion(String question, String userTimeZone) {
@@ -44,46 +53,60 @@ public class QuestionService {
         return questionRepository.save(questionEntity);
     }
 
+
     @Transactional
-        public String createQuestion(QuestionBody questionBody) {
-            QuestionEntity questionEntity = QuestionMapper.INSTANCE.idAndQuestionBodyToQuestionEntity(null,questionBody);
-            //질문에서 키워드 뽑아 카테고리 분류하기
-            String categoryName = categoryService.determineCategory(questionBody.getQuestion());
-            System.out.println("Determined category: " + categoryName);  // 로그 추가
+    public String createQuestion(QuestionBody questionBody) {
+        QuestionEntity questionEntity = QuestionMapper.INSTANCE.idAndQuestionBodyToQuestionEntity(null, questionBody);
 
-            if (categoryName == null || categoryName.trim().isEmpty()) {
-                categoryName = "기타";  // 기본값 설정
-            }
-            CategoryEntity categoryEntity = categoryRepository.findByName(categoryName)
-                    .orElse(null);  // 카테고리가 없다면 null 반환
+        // 질문에서 키워드를 뽑아 카테고리 결정
+        String category = categoryService.determineCategory(questionBody.getQuestion());
+        logger.info("Determined category: {}", category);
 
-            //카테고리가 존재하지 않으면 DB에 저장하지 않고 그대로 사용 (null로 두기, 대신 tag로 등록함)
-            if (categoryEntity == null) {
-                // 카테고리가 없으므로 DB에 저장하지 않음
-                System.out.println("category: null, tag: " + categoryName);
-            } else {
-                // 카테고리가 DB에 존재하면, QuestionEntity에 해당 카테고리 설정
+        String[] categoryNames = category.split(",");
+        Set<TagEntity> tagEntities = new HashSet<>();
+        // 매칭된 키워드 목록 가져오기
+        List<String> matchedKeywords = categoryService.getMatchedKeywords(questionBody.getQuestion());
+
+        for (String categoryName : categoryNames) {
+            String trimmedCategoryName = (categoryName == null || categoryName.trim().isEmpty()) ? "기타" : categoryName.trim(); // effectively final 변수 생성
+
+            // 카테고리 조회
+            CategoryEntity categoryEntity = categoryRepository.findByName(trimmedCategoryName).orElse(null);
+
+            if (categoryEntity != null) {
                 questionEntity.setCategoryEntity(categoryEntity);
+                logger.info("Category assigned. Category: {}, Keywords:{}", categoryEntity.getName(), matchedKeywords);
+            } else {
+                logger.warn("CategoryEntity is null. Saving as tag: {}", trimmedCategoryName);
             }
 
-        String tagName = categoryName;
-        TagEntity tagEntity = tagRepository.findByTag(categoryName)
+            // 태그 조회 및 생성 (람다식 내에서 사용될 변수는 effectively final 이어야 함)
+            TagEntity tagEntity = tagRepository.findByTag(trimmedCategoryName)
                     .orElseGet(() -> {
-                        // Tag가 없으면 새로 생성
                         TagEntity newTag = new TagEntity();
-                        newTag.setTag(tagName);
-                        tagRepository.save(newTag); // 새 태그 저장
-                        return newTag; // 저장된 새 태그 반환
+                        newTag.setTag(trimmedCategoryName);
+                        return tagRepository.save(newTag);
                     });
-            questionEntity.getTags().add(tagEntity);
+
+            tagEntities.add(tagEntity);
             tagEntity.getQuestions().add(questionEntity);
-
-
-            QuestionEntity questionCreated = questionRepository.save(questionEntity);
-            tagRepository.save(tagEntity);
-            QuestionDTO questionDTO = QuestionMapper.INSTANCE.questionEntityToQuestionDTO(questionCreated);
-            return "Question is created: " + questionDTO.getQuestion() + ", Category: " + questionDTO.getCategoryName() + ", Tag: " + tagName ;
         }
+
+        //매칭된 키워드가 있다면 이것도 태그로 저장
+        tagEntities.addAll(keywordService.createTagsFromMatchedKeywords(matchedKeywords, questionEntity));
+
+        questionEntity.setTags(tagEntities);
+        QuestionEntity savedQuestion = questionRepository.save(questionEntity);
+
+        QuestionDTO questionDTO = QuestionMapper.INSTANCE.questionEntityToQuestionDTO(savedQuestion);
+
+
+        return String.format("Question is created: %s, Category: %s, Keyword : %s, Tags: %s",
+                questionDTO.getQuestion(),
+                questionDTO.getCategoryName(),
+                categoryService.getMatchedKeywords(questionDTO.getQuestion()),
+                String.join(", ", categoryNames));
+    }
 
 
     //전체 질문 조회

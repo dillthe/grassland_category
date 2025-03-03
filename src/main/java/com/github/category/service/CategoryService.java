@@ -18,12 +18,12 @@ import com.github.category.web.dto.CategoryBody;
 import com.github.category.web.dto.CategoryDTO;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.text.similarity.LevenshteinDistance;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,6 +34,8 @@ public class CategoryService {
     private final QuestionRepository questionRepository;
     private final TagRepository tagRepository;
     private final OpenAIService openAIService;
+    private static final Logger logger = LoggerFactory.getLogger(CategoryService.class);
+
 
     private final LevenshteinDistance levenshtein = new LevenshteinDistance();
 
@@ -100,7 +102,6 @@ public class CategoryService {
         return "Category Id: " + categoryId + ", Category Name: " + existingCategory.getName() + "is deleted.";
     }
 
-
     @Transactional
     public String determineCategory(String questionText){
         List<String> categories = categoryRepository.findAll()
@@ -116,57 +117,33 @@ public class CategoryService {
             }
             return category;}
 
-    public String simpleKeywordMatching(String questionText) {
+    public List<String> getMatchedKeywords(String questionText) {
+        List<String> matchedKeywords = new ArrayList<>();
         List<KeywordEntity> keywords = keywordRepository.findAll();
 
         for (KeywordEntity keyword : keywords) {
             if (questionText.contains(keyword.getKeyword())) {
-                String categoryName = keyword.getCategoryEntity().getName();
-//                saveTag(questionText, String.valueOf(keyword));
+                matchedKeywords.add(keyword.getKeyword());
+            }
+        }
+        return matchedKeywords;
+    }
+
+    public String simpleKeywordMatching(String questionText) {
+        List<String> matchedKeywords = getMatchedKeywords(questionText); // 매칭된 키워드 리스트 가져오기
+        if (!matchedKeywords.isEmpty()) {
+            String firstMatchedKeyword = matchedKeywords.get(0); // 첫 번째 매칭된 키워드
+            KeywordEntity keywordEntity = keywordRepository.findByKeyword(firstMatchedKeyword);
+            if (keywordEntity != null && keywordEntity.getCategoryEntity() != null) {
+                String categoryName = keywordEntity.getCategoryEntity().getName();
+                logger.info("Matched keyword: {}, Category: {}", firstMatchedKeyword, categoryName);
                 return categoryName;
             }
         }
-
         return null;
     }
 
-//    private String findClosestCategory(String input, List<String> categories) {
-//        String closestCategory = categories.stream()
-//                .min((c1, c2) -> Integer.compare(
-//                        levenshtein.apply(input, c1),
-//                        levenshtein.apply(input, c2)))
-//                .orElse(null);
-//        return closestCategory != null ? closestCategory : input;
-//    }
-//
-//    private void saveTag(String questionText, String category) {
-////        QuestionEntity question = questionRepository.findByQuestion(questionText)
-////                .orElseThrow(() -> new NotFoundException("Question is not found"));
-//
-//        // 기존 태그가 있는지 확인
-//        TagEntity tag = tagRepository.findByTag(category)
-//                .orElseGet(() -> {
-//                    TagEntity newTag = new TagEntity();
-//                    newTag.setTag(category);
-//                    return tagRepository.save(newTag);
-//                });
-////
-//        QuestionEntity question = questionRepository.findByQuestion(questionText)
-//                .orElseGet(() -> {
-//                    // Question이 없으면 새로 생성
-//                    QuestionEntity newQuestion = new QuestionEntity();
-//                    newQuestion.setQuestion(questionText);
-//                    return questionRepository.save(newQuestion); // 질문을 저장
-//                });
-//
-//        // 질문에 태그 추가
-//        question.getTags().add(tag);
-//        tag.getQuestions().add(question);
-//
-//        // 연결 후 업데이트된 QuestionEntity와 TagEntity를 저장
-//        questionRepository.save(question);  // Question이 태그와 연결된 상태로 저장됨
-//        tagRepository.save(tag);
-//    }
+
 }
 
 

@@ -28,5 +28,6 @@ public interface KeywordRepository extends JpaRepository<KeywordEntity, Integer>
     Optional<KeywordEntity> findByKeywordIdAndCategoryEntity(int keywordId, CategoryEntity categoryEntity);
 
 
+    KeywordEntity findByKeyword(String firstMatchedKeyword);
 }
 
