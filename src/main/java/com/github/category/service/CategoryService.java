@@ -112,7 +112,7 @@ public class CategoryService {
         String category = simpleKeywordMatching(questionText);
 
         if (category == null) {
-            category = openAIService.categorizeQuestion(questionText,categories);
+            category = openAIService.categorizeQuestion(questionText);
 //            category = findClosestCategory(category, categories);
             }
             return category;}

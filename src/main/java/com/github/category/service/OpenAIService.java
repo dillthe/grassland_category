@@ -18,14 +18,63 @@ public class OpenAIService {
 
     private static final String OPENAI_URL = "https://api.openai.com/v1/chat/completions";
 
-    public String categorizeQuestion(String question, List<String> categories) {
+    public String categorizeQuestion(String question) {
         RestTemplate restTemplate = new RestTemplate();
-        String categoriesJson = String.join(", ", categories);
-        String prompt = "질문과 연관된 카테고리 명이나 키워드, 태그 명을 이름으로 간단하게 반환해 "
-                +  " **질문:** \"" + question + "\"\n\n" +
+
+        String prompt = buildPrompt(question);
+
+        Map<String, Object> request = Map.of(
+                "model", "gpt-4o-mini",
+                "messages", buildMessages(prompt),
+                "max_tokens", 50
+        );
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(openAiApiKey);
+
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, headers);
+        ResponseEntity<Map> response = restTemplate.exchange(OPENAI_URL, HttpMethod.POST, entity, Map.class);
+
+        return parseResponse(response.getBody());
+    }
+    private String buildPrompt(String question) {
+        return "질문과 연관된 카테고리 명이나 키워드, 태그 명을 이름으로 간단하게 반환해 "
+                + " **질문:** \"" + question + "\"\n\n" +
                 " **정확한 관련있는 이름만 한 단어로 반환하세요. 관련있는 단어가 많다면 여러개 반환해도 됩니다.** (예: '인간관계', '기도와 신앙생활')\n" +
                 " '기타'는 가급적 사용하지 마세요. 꼭 필요할 경우에만 사용하세요.";
-//
+    }
+
+    private Object[] buildMessages(String prompt) {
+        return new Object[]{
+                Map.of("role", "system", "content", "You are a helpful AI assistant."),
+                Map.of("role", "user", "content", prompt)
+        };
+    }
+
+    private String parseResponse(Map<String, Object> responseBody) {
+        // 응답 본문에서 "choices" 항목을 찾아 "content"를 추출합니다
+        if (responseBody == null || !responseBody.containsKey("choices")) {
+            return "General";
+        }
+
+        List<Map<String, Object>> choices = (List<Map<String, Object>>) responseBody.get("choices");
+        if (choices.isEmpty()) {
+            return "General";
+        }
+
+        Map<String, Object> firstChoice = choices.get(0);
+        Map<String, Object> message = (Map<String, Object>) firstChoice.get("message");
+        if (message == null || !message.containsKey("content")) {
+            return "General";
+        }
+
+        // content 값을 가져오고 trim() 후 빈 문자열일 경우 "기타" 반환
+        String content = message.get("content").toString().trim();
+        return content.replace("'", "").
+                replaceAll(" ","").trim();
+    }
+}
 
 //        String prompt = "다음 카테고리 중 질문과 가장 연관성이 높은 것을 반환하세요! " +
 //                "["+categoriesJson + "].\n\n"+
@@ -46,32 +95,3 @@ public class OpenAIService {
 //                " **질문:** \"" + question + "\"\n\n" +
 //                " **정확한 카테고리 이름만 한 단어로 반환하세요.** (예: '인간관계', '기도와 신앙생활')\n" +
 //                " '기타'는 가급적 사용하지 마세요. 꼭 필요할 경우에만 사용하세요.";
-
-        Map<String, Object> request = Map.of(
-                "model","gpt-4o-mini",/*"gpt-4",*/
-                "messages",
-                new Object[]{Map.of("role", "system",
-                        "content", "You are a helpful AI assistant."),
-                        Map.of("role", "user", "content", prompt)},
-                "max_tokens", 10
-        );
-
-
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(openAiApiKey);
-
-        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, headers);
-        ResponseEntity<Map> response = restTemplate.exchange(OPENAI_URL, HttpMethod.POST, entity, Map.class);
-
-        return parseResponse(response.getBody());
-    }
-
-    private String parseResponse(Map<String, Object> responseBody) {
-        if (responseBody == null || !responseBody.containsKey("choices")) {
-            return "General";
-        }
-        return ((Map<String, String>) ((Map<String, Object>) ((java.util.List<?>) responseBody.get("choices")).get(0)).get("message")).get("content").trim();
-    }
-}

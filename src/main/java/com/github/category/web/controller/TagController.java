@@ -15,9 +15,15 @@ public class TagController {
 
 
     // 태그 조회 (질문에 해당하는 태그들 조회)
-    @Operation(summary = "Get Tags")
-    @GetMapping("/{questionId}")
+    @Operation(summary = "Get Tags by Question ID")
+    @GetMapping("/question/{questionId}")
     public String getTagsByQuestionId(@PathVariable int questionId) {
         return tagService.getTagsByQuestionId(questionId);
+    }
+
+    @Operation(summary = "Get Questions by Tag Id")
+    @GetMapping("/{tagId}")
+    public String getQuestionsByTagId(@PathVariable int tagId) {
+        return tagService.getQuestionByTagId(tagId);
     }
 }
