@@ -36,4 +36,10 @@ public class TagController {
     public String getAllTags() {
         return tagService.getAllTags();
     }
+
+    @Operation(summary = "Delete All Tags")
+    @DeleteMapping
+    public String deleteAllTags() {
+        return tagService.deleteAllTags();
+    }
 }

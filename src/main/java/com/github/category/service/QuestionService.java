@@ -2,6 +2,7 @@ package com.github.category.service;
 
 
 import com.github.category.repository.CategoryRepository;
+import com.github.category.repository.KeywordRepository;
 import com.github.category.repository.QuestionRepository;
 import com.github.category.repository.TagRepository;
 import com.github.category.repository.entity.CategoryEntity;
@@ -37,7 +38,6 @@ public class QuestionService {
     private final CategoryService categoryService;
     private final KeywordService keywordService;
     private static final Logger logger = LoggerFactory.getLogger(QuestionService.class);
-
 
 
     public QuestionEntity createQuestion(String question, String userTimeZone) {
@@ -129,11 +129,21 @@ public class QuestionService {
     //질문 단건 조회
     public QuestionDTO getQuestionById(int questionId) {
         QuestionEntity existingQuestion = questionRepository.findById(questionId)
-                .orElseThrow(()->new NotAcceptException("Question Id doesn't exist"));
+                .orElseThrow(() -> new NotAcceptException("Question Id doesn't exist"));
         QuestionDTO questionDTO = QuestionMapper.INSTANCE.questionEntityToQuestionDTO(existingQuestion);
         return questionDTO;
     }
 
 
+    public String deleteQuestion(int questionId) {
+        QuestionEntity existingQuestion = questionRepository.findById(questionId)
+                .orElseThrow(() -> new NotFoundException("No Question found for this Id" + questionId));
+        questionRepository.deleteById(existingQuestion.getQuestionId());
+        return String.format("Question Id: %d, Question: %s is deleted.", existingQuestion.getQuestionId(), existingQuestion.getQuestion());
+    }
 
+    public String deleteAllQuestion() {
+        questionRepository.deleteAll();
+        return "All questions are deleted.";
+    }
 }

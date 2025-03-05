@@ -42,10 +42,17 @@ public class QuestionController {
         return questionDTO;
     }
 
-//    @Operation(summary = "Delete a question")
-//    @DeleteMapping("/{questionId}")
-//    public String deleteQuestion(@PathVariable int questionId) {
-//        String deletion = questionService.deleteQuestion(questionId);
-//        return deletion;
-//    }
+    @Operation(summary = "Delete a question")
+    @DeleteMapping("/{questionId}")
+    public String deleteQuestion(@PathVariable int questionId) {
+        String deletion = questionService.deleteQuestion(questionId);
+        return deletion;
+    }
+
+    @Operation(summary = "Delete a question")
+    @DeleteMapping()
+    public String deleteAllQuestion() {
+        String deletion = questionService.deleteAllQuestion();
+        return deletion;
+    }
 }

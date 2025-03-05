@@ -45,7 +45,14 @@ public class KeywordController {
         return "Keywords are added successfully!" + keywordDTOs.toString();
     }
 
-    // 키워드 이름으로 삭제
+    //키워드 이름으로 해당 카테고리 전부 조회
+    @Operation(summary="Find keywords and their categories")
+    @GetMapping("/find")
+    public String findKeywords(@RequestBody KeywordBody keywordBody) {
+        return keywordService.findKeyword(keywordBody);
+    }
+
+    // 키워드 명으로 삭제
     @Operation(summary="Delete a keyword by Keyword")
     @DeleteMapping("/{categoryId}")
     public String deleteKeyword(@PathVariable int categoryId, @RequestBody KeywordBody keywordBody) {

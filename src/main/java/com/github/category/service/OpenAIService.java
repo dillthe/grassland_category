@@ -26,7 +26,7 @@ public class OpenAIService {
         Map<String, Object> request = Map.of(
                 "model", "gpt-4o-mini",
                 "messages", buildMessages(prompt),
-                "max_tokens", 50
+                "max_tokens", 40
         );
 
         HttpHeaders headers = new HttpHeaders();

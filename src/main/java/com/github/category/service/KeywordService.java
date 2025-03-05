@@ -7,6 +7,7 @@ import com.github.category.repository.entity.CategoryEntity;
 import com.github.category.repository.entity.KeywordEntity;
 import com.github.category.repository.entity.QuestionEntity;
 import com.github.category.repository.entity.TagEntity;
+import com.github.category.service.exceptions.ConflictException;
 import com.github.category.service.exceptions.NotAcceptException;
 import com.github.category.service.exceptions.NotFoundException;
 import com.github.category.service.mapper.CategoryMapper;
@@ -14,6 +15,9 @@ import com.github.category.service.mapper.KeywordMapper;
 import com.github.category.web.dto.KeywordBody;
 import com.github.category.web.dto.KeywordDTO;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,13 +25,17 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class KeywordService {
     private final KeywordRepository keywordRepository;
     private final CategoryRepository categoryRepository;
     private final TagRepository tagRepository;
+    private static final Logger logger = LoggerFactory.getLogger(KeywordService.class);
+
 
     // 키워드 전체 조회
     public List<KeywordDTO> getAllKeywords() {
@@ -84,6 +92,18 @@ public class KeywordService {
         return keywordDTOs;
     }
 
+    //키워드 이름으로 카테고리 조회
+    public String findKeyword(KeywordBody keywordBody) {
+        List<KeywordEntity> existingKeywords =keywordRepository.findByKeyword(keywordBody.getKeyword());
+        if (existingKeywords.isEmpty()) {
+            throw new NotFoundException("No keywords found matching: " + keywordBody.getKeyword());
+        }
+        return existingKeywords.stream()
+                .map(keyword -> "Keyword: " + keyword.getKeyword() +
+                        ", Category: " + keyword.getCategoryEntity().getName() +
+                        ", Category Id: " + keyword.getCategoryEntity().getCategoryId())
+                .collect(Collectors.joining("\n"));
+    }
 
     // 키워드 삭제(키워드 Keyword로 조회)
     public String deleteKeyword(int categoryId, KeywordBody keywordBody) {
@@ -92,19 +112,19 @@ public class KeywordService {
 
         KeywordEntity existingKeyword =keywordRepository.findByKeywordAndCategoryEntity(keywordBody.getKeyword(), categoryEntity)
                 .orElseThrow(() -> new NotFoundException("Keyword doesn't exist in the specified category"));
-        KeywordRepository.deleteByKeyword(existingKeyword);
-        return "Keyword Id: " + existingKeyword.getKeywordId() + ", Keyword Name: " + existingKeyword.getKeyword() + "is deleted.";
-        }
+            keywordRepository.delete(existingKeyword);
+            return "Keyword Id: " + existingKeyword.getKeywordId() + ", Keyword Name: " + existingKeyword.getKeyword() + " is deleted.";
+    }
 
     // 키워드 삭제(키워드 Id로 조회)
     public String deleteKeywordById(int categoryId, int keywordId) {
         CategoryEntity categoryEntity = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new NotFoundException("Category with ID " + categoryId + " doesn't exist"));
 
-        KeywordEntity existingKeyword =keywordRepository.findByKeywordIdAndCategoryEntity(keywordId,categoryEntity)
-            .orElseThrow(() -> new NotFoundException("Keyword doesn't exist in the specified category"));
-        KeywordRepository.deleteById(existingKeyword.getKeywordId());
-        return "Keyword Id: " + existingKeyword.getKeywordId() + ", Keyword Name: " + existingKeyword.getKeyword() + "is deleted.";
+        KeywordEntity existingKeyword = keywordRepository.findByKeywordIdAndCategoryEntity(keywordId, categoryEntity)
+                .orElseThrow(() -> new NotFoundException("Keyword doesn't exist in the specified category"));
+        keywordRepository.deleteById(existingKeyword.getKeywordId());
+        return String.format("Keyword Id: %d, Keyword Name: %s is deleted.", existingKeyword.getKeywordId(), existingKeyword.getKeyword());
     }
 
     //키워드 삭제 (해당 카테고리 내 전체 키워드 삭제)
@@ -128,7 +148,7 @@ public class KeywordService {
             TagEntity tagEntity = tagRepository.findByTag(keyword)
                     .orElseGet(() -> {
                         TagEntity newTag = new TagEntity();
-                        newTag.setTag(keyword);
+                        newTag.setTag(keyword.replaceAll("\\s+",""));
                         return tagRepository.save(newTag);
                     });
 

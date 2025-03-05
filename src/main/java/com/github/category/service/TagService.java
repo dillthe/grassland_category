@@ -17,10 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,12 +28,14 @@ public class TagService {
     private final QuestionRepository questionRepository;
     private static final Logger logger = LoggerFactory.getLogger(TagService.class);
 
+
+    //질문과 연관된 전체 태그 반환
     public String getTagsByQuestionId(int questionId) {
         Optional<QuestionEntity> question = questionRepository.findById(questionId);
 
         if (question.isPresent()) {
             Set<TagEntity> tags = question.get().getTags();
-            // 태그 목록을 쉼표로 구분하여 반환
+
             return "Tags: " + tags.stream()
                     .map(TagEntity::getTag)
                     .collect(Collectors.joining(", "));
@@ -45,6 +44,7 @@ public class TagService {
         }
     }
 
+    //태그와 연관된 전체 질문 리스트 반환
     @Transactional
     public String getQuestionsByTagId(int tagId) {
         Optional<TagEntity> tag = tagRepository.findById(tagId);
@@ -59,16 +59,15 @@ public class TagService {
         } else {
             return "No tag found for ID: " + tagId;
         }
-        }
+    }
 
 
-
+    //전체 태그 반환 - 태그에 포함된 질문 수 내림차순 정렬
+    //태그에 포함된 질문이 많아지면 나중에 해당 태그를 키워드로 넣을 수 있도록..!?
     public String getAllTags() {
         List<TagEntity> tagEntities = tagRepository.findAll();
         List<TagDTO> tagDTOs = TagMapper.INSTANCE.tagEntitiesToTagDTOs(tagEntities);
-
-        // 질문 수를 기준으로 내림차순으로 정렬
-        tagDTOs.sort((tag1, tag2) -> Integer.compare(tag2.getQuestionCount(), tag1.getQuestionCount()));
+        tagDTOs.sort(Comparator.comparingInt(TagDTO::getQuestionCount).reversed());
 
         return "Tags: " + getTagNames(tagDTOs);
     }
@@ -77,17 +76,10 @@ public class TagService {
                 .map(tagDTO -> tagDTO.getTag() + " (" + tagDTO.getQuestionCount() + " questions)")
                 .collect(Collectors.joining(", "));
     }
-//
-    //    public String getAllTags() {
-//        List<TagEntity> tagEntities = tagRepository.findAll();
-//        List<TagDTO> tagDTOs = TagMapper.INSTANCE.tagEntitiesToTagDTOs(tagEntities);
-//        return "Tags " + getTagNames(tagDTOs);
-//    }
-//    public String getTagNames(List<TagDTO> tagDTOList) {
-//        return tagDTOList.stream()
-//                .map(TagDTO::getTag)
-//                .collect(Collectors.joining(", "));
-//    }
 
 
+    public String deleteAllTags() {
+        tagRepository.deleteAll();
+        return "All tags are deleted.";
+    }
 }

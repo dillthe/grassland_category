@@ -10,12 +10,6 @@ import java.util.Optional;
 
 @Repository
 public interface KeywordRepository extends JpaRepository<KeywordEntity, Integer> {
-    static void deleteByKeyword(KeywordEntity existingKeyword) {
-    }
-
-    static void deleteById(int existingKeyword) {
-    }
-
 
     List<KeywordEntity> findAllByCategoryEntity(CategoryEntity categoryEntity);
 
@@ -28,6 +22,6 @@ public interface KeywordRepository extends JpaRepository<KeywordEntity, Integer>
     Optional<KeywordEntity> findByKeywordIdAndCategoryEntity(int keywordId, CategoryEntity categoryEntity);
 
 
-    KeywordEntity findByKeyword(String firstMatchedKeyword);
+    List<KeywordEntity> findByKeyword(String firstMatchedKeyword);
 }
 

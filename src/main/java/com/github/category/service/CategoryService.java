@@ -89,7 +89,7 @@ public class CategoryService {
         return categoryDTOs;
     }
 
-//    전체 카테고리 및 카테고리에 포함된 전체 키워드 조회
+    //    전체 카테고리 및 카테고리에 포함된 전체 키워드 조회
     @Transactional
     public List<CategoryEntity> getCategoriesWithKeywords() {
         return categoryRepository.findAllWithKeywords();
@@ -103,7 +103,7 @@ public class CategoryService {
     }
 
     @Transactional
-    public String determineCategory(String questionText){
+    public String determineCategory(String questionText) {
         List<String> categories = categoryRepository.findAll()
                 .stream()
                 .map(CategoryEntity::getName)
@@ -114,8 +114,11 @@ public class CategoryService {
         if (category == null) {
             category = openAIService.categorizeQuestion(questionText);
 //            category = findClosestCategory(category, categories);
-            }
-            return category;}
+            //AI돌려 나온 값을 가장 비슷한 카테고리에 엮으려고 했는데 그렇게 안하고
+            //카테고리(키워드)로 분류가 안되는 아이들은 태그로 뺌
+        }
+        return category;
+    }
 
     public List<String> getMatchedKeywords(String questionText) {
         List<String> matchedKeywords = new ArrayList<>();
@@ -133,17 +136,17 @@ public class CategoryService {
         List<String> matchedKeywords = getMatchedKeywords(questionText); // 매칭된 키워드 리스트 가져오기
         if (!matchedKeywords.isEmpty()) {
             String firstMatchedKeyword = matchedKeywords.get(0); // 첫 번째 매칭된 키워드
-            KeywordEntity keywordEntity = keywordRepository.findByKeyword(firstMatchedKeyword);
-            if (keywordEntity != null && keywordEntity.getCategoryEntity() != null) {
-                String categoryName = keywordEntity.getCategoryEntity().getName();
-                logger.info("Matched keyword: {}, Category: {}", firstMatchedKeyword, categoryName);
-                return categoryName;
+            List<KeywordEntity> keywordEntities = keywordRepository.findByKeyword(firstMatchedKeyword);
+            if (!keywordEntities.isEmpty()) {
+                // 첫 번째 매칭된 결과에서 카테고리 이름 가져오기
+                KeywordEntity keywordEntity = keywordEntities.get(0);
+                if (keywordEntity.getCategoryEntity() != null) {
+                    String categoryName = keywordEntity.getCategoryEntity().getName();
+                    logger.info("Matched keyword: {}, Category: {}", firstMatchedKeyword, categoryName);
+                    return categoryName;
+                }
             }
         }
         return null;
     }
-
-
 }
-
-
