@@ -37,6 +37,12 @@ public class TagController {
         return tagService.getAllTags();
     }
 
+    @Operation(summary = "Delete Tag By Id")
+    @DeleteMapping("/{tagId}")
+    public String deleteTagById(@PathVariable int tagId) {
+        return tagService.deleteTagById(tagId);
+    }
+
     @Operation(summary = "Delete All Tags")
     @DeleteMapping
     public String deleteAllTags() {

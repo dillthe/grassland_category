@@ -73,10 +73,14 @@ public class TagService {
     }
     private String getTagNames(List<TagDTO> tagDTOList) {
         return tagDTOList.stream()
-                .map(tagDTO -> tagDTO.getTag() + " (" + tagDTO.getQuestionCount() + " questions)")
+                .map(tagDTO -> "Id:"+tagDTO.getTagId() +"-"+tagDTO.getTag() + "(" + tagDTO.getQuestionCount() + "questions) ")
                 .collect(Collectors.joining(", "));
     }
 
+    public String deleteTagById(int tagId) {
+        tagRepository.deleteById(tagId);
+        return "Tag Id: "+ tagId + " is deleted";
+    }
 
     public String deleteAllTags() {
         tagRepository.deleteAll();

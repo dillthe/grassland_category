@@ -10,5 +10,6 @@ import lombok.*;
 public class KeywordDTO {
     private int keywordId;
     private int categoryId;
+    private String categoryName;
     private String keyword;
 }

@@ -41,14 +41,15 @@ public class QuestionService {
         // 질문에서 키워드를 뽑아 카테고리 결정
         String category = categoryService.determineCategory(questionBody.getQuestion());
         logger.info("Determined category: {}", category);
-
+        //연관된 카테고리 이름 여러개일 경우 split
         String[] categoryNames = category.split(",");
         Set<TagEntity> tagEntities = new HashSet<>();
         // 매칭된 키워드 목록 가져오기
         List<String> matchedKeywords = categoryService.getMatchedKeywords(questionBody.getQuestion());
 
+
         for (String categoryName : categoryNames) {
-            String trimmedCategoryName = (categoryName == null || categoryName.trim().isEmpty()) ? "기타" : categoryName.trim(); // effectively final 변수 생성
+            String trimmedCategoryName = (categoryName == null || categoryName.trim().isEmpty()) ? "기타" : categoryName.trim();
 
             // 카테고리 조회
             CategoryEntity categoryEntity = categoryRepository.findByName(trimmedCategoryName).orElse(null);
@@ -64,7 +65,7 @@ public class QuestionService {
             TagEntity tagEntity = tagRepository.findByTag(trimmedCategoryName)
                     .orElseGet(() -> {
                         TagEntity newTag = new TagEntity();
-                        newTag.setTag(trimmedCategoryName);
+                        newTag.setTag(trimmedCategoryName.replaceAll(" ",""));
                         return tagRepository.save(newTag);
                     });
 

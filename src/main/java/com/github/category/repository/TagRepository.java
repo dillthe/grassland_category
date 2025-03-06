@@ -13,7 +13,4 @@ public interface TagRepository extends JpaRepository<TagEntity, Integer> {
 
     Optional<TagEntity> findByTag(String tagName);
 
-//    @Query("SELECT t FROM TagEntity t JOIN FETCH t.questions WHERE t.tagId = :tagId")
-//    Optional<TagEntity> findTagWithQuestions(@Param("tagId") int tagId);
-
 }

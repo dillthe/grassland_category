@@ -16,8 +16,10 @@ public interface KeywordMapper {
     KeywordEntity idAndKeywordBodyToKeywordEntity(Integer keywordId, KeywordBody keywordBody);
 
     @Mapping(source="categoryEntity.categoryId", target="categoryId")
+    @Mapping(source="categoryEntity.name", target="categoryName")
     KeywordDTO keywordEntityToKeywordDTO(KeywordEntity keywordEntity);
     @Mapping(source="categoryEntity.categoryId", target="categoryId")
+    @Mapping(source="categoryEntity.name", target="categoryName")
     List<KeywordDTO> keywordEntitiesToKeywordDTOs(List<KeywordEntity> keywordEntities);
 
 

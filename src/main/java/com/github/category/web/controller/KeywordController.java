@@ -46,6 +46,8 @@ public class KeywordController {
     }
 
     //키워드 이름으로 해당 카테고리 전부 조회
+    // 동일 키워드가 여러 카테고리에 들어가있을 경우 조회하여 중복된 정보 삭제하기 위함
+    //키워드명, 키워드가 포함된 카테고리 번호가 출력되면 여기서 필요없는 카테고리 번호로 아래 delete a keyword by keyword 메소드 사용하면 됨.
     @Operation(summary="Find keywords and their categories")
     @GetMapping("/find")
     public String findKeywords(@RequestBody KeywordBody keywordBody) {
