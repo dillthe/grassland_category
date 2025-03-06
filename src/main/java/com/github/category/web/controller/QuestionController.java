@@ -30,15 +30,22 @@ public class QuestionController {
     }
 
     @Operation(summary = "Get all questions by category")
-    @GetMapping("/{categoryId}")
+    @GetMapping("/category/{categoryId}")
     public List<QuestionDTO> getAllQuestionsByCategory(@PathVariable int categoryId) {
         return questionService.getAllQuestionsByCategory(categoryId);
     }
 
-    @Operation(summary = "Get one question by Id")
+//    @Operation(summary = "Get one question by Id")
+//    @GetMapping("/{questionId}")
+//    public QuestionDTO getQuestion(@PathVariable int questionId) {
+//        QuestionDTO questionDTO = questionService.getQuestionById(questionId);
+//        return questionDTO;
+//    }
+
+    @Operation(summary = "Get one question by Id + 사용자 시간대 맞춰 조회 가능하도록 함")
     @GetMapping("/{questionId}")
-    public QuestionDTO getQuestion(@PathVariable int questionId) {
-        QuestionDTO questionDTO = questionService.getQuestionById(questionId);
+    public QuestionDTO getQuestion(@PathVariable int questionId, @RequestParam String userTimeZone ) {
+        QuestionDTO questionDTO = questionService.getQuestionById(questionId, userTimeZone);
         return questionDTO;
     }
 

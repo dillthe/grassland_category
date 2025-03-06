@@ -23,6 +23,7 @@ public class OpenAIService {
 
         String prompt = buildPrompt(question);
 
+        //max_token value값:40이면 태그가 3-4개 정도로 나옴, 토큰 갯수를 늘리면 태그가 더 많이 출력됨.
         Map<String, Object> request = Map.of(
                 "model", "gpt-4o-mini",
                 "messages", buildMessages(prompt),
@@ -76,6 +77,8 @@ public class OpenAIService {
     }
 }
 
+//아래는 태그 기능을 만들기 전에, 키워드 매칭이 되지 않아 카테고리 분류가 안되는 질문들을
+// 현재 있는 카테고리 중에서 연관성이 가장 높은 것으로 반환될 수 있도록 하는 프롬프트였음.
 //        String prompt = "다음 카테고리 중 질문과 가장 연관성이 높은 것을 반환하세요! " +
 //                "["+categoriesJson + "].\n\n"+
 //                "카테고리 설명 : **\n" +

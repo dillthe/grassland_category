@@ -8,6 +8,7 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.security.Timestamp;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -33,8 +34,13 @@ public class QuestionEntity {
     @JoinColumn(name = "category_id")
     private CategoryEntity categoryEntity;
 
+//    @Column(name = "created_at", updatable = false)
+//    private ZonedDateTime createdAt = ZonedDateTime.now();
+
+    // UTC 기준으로 저장
     @Column(name = "created_at", updatable = false)
-    private ZonedDateTime createdAt = ZonedDateTime.now();
+    private Instant createdAt = Instant.now();
+
 
     @ManyToMany(mappedBy = "questions")
     private Set<TagEntity> tags = new HashSet<>();

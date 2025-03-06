@@ -3,10 +3,6 @@ package com.github.category.repository.entity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-
-import java.security.Timestamp;
-import java.time.ZonedDateTime;
 
 
 @Getter

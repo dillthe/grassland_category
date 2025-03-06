@@ -16,12 +16,13 @@ public interface QuestionMapper {
 
 
     @Mapping(target = "question", source = "questionBody.question")
-//    @Mapping(target = "createdTimeAt", expression = "java(java.time.ZonedDateTime.now())")
+    @Mapping(target = "createdAt", expression = "java(java.time.Instant.now())")
     QuestionEntity idAndQuestionBodyToQuestionEntity(Integer id, QuestionBody questionBody);
 
     @Mapping(target="categoryName", source = "categoryEntity.name")
     @Mapping(target="questionId", source = "questionId")
     @Mapping(target="categoryId", source="categoryEntity.categoryId")
+    @Mapping(target = "createdAt", source = "createdAt") // createdAt을 Instant로 그대로 매핑
     QuestionDTO questionEntityToQuestionDTO(QuestionEntity questionEntity);
 
     @Mapping(target="questionId", source = "questionId")

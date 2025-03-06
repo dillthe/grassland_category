@@ -17,5 +17,6 @@ public interface CategoryMapper {
     CategoryEntity idAndCategoryBodyToCategoryEntity(Integer id, CategoryBody categoryBody);
 
     CategoryDTO categoryEntityToCategoryDTO(CategoryEntity categoryEntity);
+
     List<CategoryDTO> categoryEntitiesToCategoryDTOs(List<CategoryEntity> categoryEntities);
 }

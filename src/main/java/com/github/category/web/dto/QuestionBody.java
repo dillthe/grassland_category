@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.security.Timestamp;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 
 @Getter
@@ -17,5 +18,5 @@ import java.time.ZonedDateTime;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class QuestionBody {
     private String question;
-    private ZonedDateTime createdAt;
+    private Instant createdAt;
 }

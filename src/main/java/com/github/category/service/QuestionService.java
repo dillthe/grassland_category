@@ -2,17 +2,14 @@ package com.github.category.service;
 
 
 import com.github.category.repository.CategoryRepository;
-import com.github.category.repository.KeywordRepository;
 import com.github.category.repository.QuestionRepository;
 import com.github.category.repository.TagRepository;
 import com.github.category.repository.entity.CategoryEntity;
-import com.github.category.repository.entity.KeywordEntity;
 import com.github.category.repository.entity.QuestionEntity;
 import com.github.category.repository.entity.TagEntity;
 import com.github.category.service.exceptions.NotAcceptException;
 import com.github.category.service.exceptions.NotFoundException;
 import com.github.category.service.mapper.QuestionMapper;
-import com.github.category.web.controller.QuestionController;
 import com.github.category.web.dto.QuestionBody;
 import com.github.category.web.dto.QuestionDTO;
 import lombok.RequiredArgsConstructor;
@@ -22,10 +19,7 @@ import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -38,20 +32,6 @@ public class QuestionService {
     private final CategoryService categoryService;
     private final KeywordService keywordService;
     private static final Logger logger = LoggerFactory.getLogger(QuestionService.class);
-
-
-    public QuestionEntity createQuestion(String question, String userTimeZone) {
-        // 사용자의 시간대에 맞는 ZonedDateTime 생성
-        ZonedDateTime userZonedDateTime = ZonedDateTime.now(ZoneId.of(userTimeZone));
-
-        // 새로운 질문 생성
-        QuestionEntity questionEntity = new QuestionEntity();
-        questionEntity.setQuestion(question);
-        questionEntity.setCreatedAt(userZonedDateTime); // 사용자의 시간대 반영
-
-        // 질문 저장
-        return questionRepository.save(questionEntity);
-    }
 
 
     @Transactional
@@ -127,10 +107,20 @@ public class QuestionService {
     }
 
     //질문 단건 조회
-    public QuestionDTO getQuestionById(int questionId) {
+//    public QuestionDTO getQuestionById(int questionId) {
+//        QuestionEntity existingQuestion = questionRepository.findById(questionId)
+//                .orElseThrow(() -> new NotAcceptException("Question Id doesn't exist"));
+//        QuestionDTO questionDTO = QuestionMapper.INSTANCE.questionEntityToQuestionDTO(existingQuestion);
+//        return questionDTO;
+//    }
+
+    public QuestionDTO getQuestionById(int questionId, String userTimeZone) {
         QuestionEntity existingQuestion = questionRepository.findById(questionId)
                 .orElseThrow(() -> new NotAcceptException("Question Id doesn't exist"));
         QuestionDTO questionDTO = QuestionMapper.INSTANCE.questionEntityToQuestionDTO(existingQuestion);
+        //질문을 저장할 때는 UTC타임으로 저장이 되지만, 질문을 조회할 때는 사용자 위치에 맞게 시간대가 변환되어 조회됨.
+        String formattedTime = TimeZoneConverter.convertToUserTimeZone(existingQuestion.getCreatedAt(), userTimeZone);
+        questionDTO.setCreatedAt(formattedTime);
         return questionDTO;
     }
 
