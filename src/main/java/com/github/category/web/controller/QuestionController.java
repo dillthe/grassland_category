@@ -23,6 +23,14 @@ public class QuestionController {
         String createdQuestion = questionService.createQuestion(questionBody);
         return createdQuestion;
     }
+
+    @Operation(summary = "Create many questions")
+    @PostMapping("/batch")
+    public String createQuestion(@RequestBody List<QuestionBody> questionBodies) {
+        String createdQuestions = questionService.createQuestions(questionBodies);
+        return createdQuestions;
+    }
+
     @Operation(summary = "Get all questions")
     @GetMapping
     public List<QuestionDTO> getAllQuestions() {

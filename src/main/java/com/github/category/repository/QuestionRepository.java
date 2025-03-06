@@ -15,8 +15,4 @@ import java.util.Set;
 public interface QuestionRepository extends JpaRepository<QuestionEntity, Integer> {
     List<QuestionEntity> findByCategoryEntity(CategoryEntity categoryEntity);
 
-
-    // 2. @Query 기반 쿼리
-    @Query("SELECT q FROM QuestionEntity q JOIN q.tags t WHERE t.tagId = :tagId")
-    Set<QuestionEntity> findByTagId(@Param("tagId") int tagId);
 }

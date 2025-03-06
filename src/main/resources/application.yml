@@ -13,3 +13,7 @@ spring:
 openai:
   api:
     key: ${OPENAI_API_KEY}
+
+csv:
+  file:
+    path: ${CSV_FILE_PATH}

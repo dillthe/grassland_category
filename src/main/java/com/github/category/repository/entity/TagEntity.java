@@ -1,6 +1,7 @@
 package com.github.category.repository.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -29,6 +30,7 @@ public class TagEntity {
     @Column(name = "tag", nullable = false)
     private String tag;
 
+    @JsonBackReference
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "question_tag", // 중간 테이블 이름

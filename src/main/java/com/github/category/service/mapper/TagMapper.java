@@ -20,4 +20,8 @@ public interface TagMapper {
     TagDTO tagEntityToTagDTO(TagEntity tag);
 
     List<TagDTO> tagEntitiesToTagDTOs(List<TagEntity> tagEntities);
+
+    default String tagEntityToString(TagEntity tagEntity) {
+        return tagEntity != null ? tagEntity.getTag() : null;
+    }
 }
